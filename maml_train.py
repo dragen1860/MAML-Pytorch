@@ -25,7 +25,7 @@ def main():
 	meta_batchsz = int(args.b)
 	lr = float(args.l)
 
-	k_query = 1
+	k_query = 15
 	imgsz = 84
 	threhold = 0.699 if k_shot==5 else 0.584 # threshold for when to test full version of episode
 	mdl_file = 'ckpt/maml%d%d.mdl'%(n_way, k_shot)
@@ -33,7 +33,7 @@ def main():
 
 
 
-	device = torch.device('cuda:1')
+	device = torch.device('cuda:0')
 	net = MAML(n_way, k_shot, k_query, meta_batchsz=meta_batchsz, K=5, device=device)
 	print(net)
 
@@ -54,7 +54,7 @@ def main():
 		mini = MiniImagenet('/hdd1/liangqu/datasets/miniimagenet/', mode='train', n_way=n_way, k_shot=k_shot, k_query=k_query,
 		                    batchsz=10000, resize=imgsz)
 		# fetch meta_batchsz num of episode each time
-		db = DataLoader(mini, meta_batchsz, shuffle=True, num_workers=8, pin_memory=True)
+		db = DataLoader(mini, meta_batchsz, shuffle=True, num_workers=4, pin_memory=True)
 
 		for step, batch in enumerate(db):
 
@@ -66,8 +66,8 @@ def main():
 
 			accs = net(support_x, support_y, query_x, query_y, training = True)
 
-			if step % 10 == 0:
-				print(accs)
+			if step % 50 == 0:
+				print(epoch, step, '\t', accs)
 
 
 

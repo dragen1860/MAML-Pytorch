@@ -325,15 +325,16 @@ class MAML(nn.Module):
 		batchsz, setsz, c_, h, w = support_x.size()
 		querysz = query_x.size(1)
 
-		losses_q = []
-		corrects = [0] * self.K
+
+		losses_q = [] # losses_q[i], i is tasks idx
+		corrects = [0] * self.K # corrects[i] save cumulative correct number of all tasks in step k
 
 		# TODO: add multi-threading support
 		# NOTICE: although the GIL limit the multi-threading performance severely, it does make a difference. 
 		# When deal with IO operation,
 		# we need to coordinate with outside IO devices. With the assistance of multi-threading, we can issue multi-commands
 		# parallelly and improve the efficency of IO usage.
-		for i in range(self.meta_batchsz):
+		for i in range(batchsz): # batchsz==self.meta_batchsz
 
 			# 1. run the i-th task and compute loss for k=0
 			pred = self.net.run(support_x[i])
@@ -348,15 +349,15 @@ class MAML(nn.Module):
 			# for p in grad[:5]:
 			# 	print(p.norm().item())
 
-			# 3. theta_pi = theta - lr * grad
-			fast_weights = list(map(lambda p: p[1] + self.train_lr * p[0], zip(grad, self.net.parameters())))
+			# 3. theta_pi = theta - train_lr * grad
+			fast_weights = list(map(lambda p: p[1] - self.train_lr * p[0], zip(grad, self.net.parameters())))
 
 			# [setsz, nway]
-			pred_q = self.net.run(query_x[i])
+			pred_q = self.net.run(query_x[i], self.net.parameters(), bns=None, training=training)
 			# [setsz]
 			pred_q = F.softmax(pred_q, dim=1).argmax(dim=1)
 			# scalar
-			correct = torch.eq(pred_q, support_y[i]).sum().item()
+			correct = torch.eq(pred_q, query_y[i]).sum().item()
 			corrects[0] = corrects[0] + correct
 
 			for k in range(1, self.K):
@@ -367,14 +368,14 @@ class MAML(nn.Module):
 				self.net.zero_grad(fast_weights)
 				# 2. compute grad on theta_pi
 				grad = torch.autograd.grad(loss, fast_weights)
-				# 3. theta_pi = theta_pi - lr * grad
-				fast_weights = list(map(lambda p: p[1] + self.train_lr * p[0], zip(grad, fast_weights)))
+				# 3. theta_pi = theta_pi - train_lr * grad
+				fast_weights = list(map(lambda p: p[1] - self.train_lr * p[0], zip(grad, fast_weights)))
 
 
 				pred_q = self.net.run(query_x[i], fast_weights, bns=None, training=training)
 				loss_q = F.cross_entropy(pred_q, query_y[i])
 				pred_q = F.softmax(pred_q, dim=1).argmax(dim=1)
-				correct = torch.eq(pred_q, support_y[i]).sum().item()
+				correct = torch.eq(pred_q, query_y[i]).sum().item() # convert to numpy
 				corrects[k] = corrects[k] + correct
 
 			# 4. record last step's loss for task i
@@ -392,7 +393,7 @@ class MAML(nn.Module):
 		# 	print(torch.norm(p).item())
 		self.meta_optim.step()
 
-		accs = np.array(corrects) / (self.meta_batchsz * batchsz)
+		accs = np.array(corrects) / (querysz * batchsz)
 
 		return accs
 
