@@ -126,12 +126,12 @@ class OmniglotNShot():
 						# i: batch idx
 						# cur_class: cls in n_way
 						support_x[i, shuffle_idx[j] * self.k_shot + offset, ...] = data_pack[cur_class][img]
-						support_y[i, shuffle_idx[j] * self.k_shot + offset] = cur_class
+						support_y[i, shuffle_idx[j] * self.k_shot + offset] = j #cur_class = global indexing
 
 					# meta-test, treat following k_query imgs as query imgs
 					for offset, img in enumerate(selected_imgs[self.k_shot:]):
 						query_x[i, shuffle_idx_test[j] * self.k_query + offset, ...] = data_pack[cur_class][img]
-						query_y[i, shuffle_idx_test[j] * self.k_query + offset] = cur_class
+						query_y[i, shuffle_idx_test[j] * self.k_query + offset] = j #cur_class = global indexing
 
 			data_cache.append([support_x, support_y, query_x, query_y])
 		return data_cache

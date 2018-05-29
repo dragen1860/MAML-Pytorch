@@ -2,7 +2,7 @@ import torch, os
 import numpy as np
 from torch import optim
 from torch import  nn
-from MiniImagenet import MiniImagenet
+from omniglotNShot import OmniglotNShot
 import scipy.stats
 from torch.utils.data import DataLoader
 from torch.optim import lr_scheduler
@@ -27,9 +27,8 @@ def main():
 
 	k_query = 15
 	imgsz = 84
-	threhold = 0.699 if k_shot==5 else 0.584 # threshold for when to test full version of episode
-	mdl_file = 'ckpt/maml%d%d.mdl'%(n_way, k_shot)
-	print('mini-imagnet: %d-way %d-shot lr:%f, threshold:%f' % (n_way, k_shot, lr, threhold))
+	mdl_file = 'ckpt/omniglot%d%d.mdl'%(n_way, k_shot)
+	print('omniglot: %d-way %d-shot meta-lr:%f' % (n_way, k_shot, lr))
 
 
 
@@ -49,25 +48,24 @@ def main():
 	print('Total params:', params)
 
 
-	for epoch in range(1000):
+	for step in range(10000000):
 		# batchsz here means total episode number
-		mini = MiniImagenet('/hdd1/liangqu/datasets/miniimagenet/', mode='train', n_way=n_way, k_shot=k_shot, k_query=k_query,
-		                    batchsz=10000, resize=imgsz)
-		# fetch meta_batchsz num of episode each time
-		db = DataLoader(mini, meta_batchsz, shuffle=True, num_workers=4, pin_memory=True)
+		db = OmniglotNShot('omniglot', batchsz=meta_batchsz, n_way=n_way, k_shot=k_shot, k_query=k_query, imgsz=imgsz)
 
-		for step, batch in enumerate(db):
 
-			# 2. train
-			support_x = batch[0].to(device)
-			support_y = batch[1].to(device)
-			query_x = batch[2].to(device)
-			query_y = batch[3].to(device)
+		# 2. train
+		support_x, support_y, query_x, query_y = db.get_batch('train')
+		support_x = torch.from_numpy(support_x).float().transpose(2, 4).transpose(3, 4).repeat(1, 1, 3, 1, 1).to(device)
+		query_x = torch.from_numpy(query_x).float().transpose(2, 4).transpose(3, 4).repeat(1, 1, 3, 1, 1).to(device)
+		support_y = torch.from_numpy(support_y).long().to(device)
+		query_y = torch.from_numpy(query_y).long().to(device)
 
-			accs = net(support_x, support_y, query_x, query_y, training = True)
+		accs = net(support_x, support_y, query_x, query_y, training = True)
 
-			if step % 50 == 0:
-				print(epoch, step, '\t', accs)
+		if step % 50 == 0:
+			print(step, '\t', accs)
+
+
 
 
 

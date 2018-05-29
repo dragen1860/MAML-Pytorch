@@ -27,9 +27,8 @@ def main():
 
 	k_query = 15
 	imgsz = 84
-	threhold = 0.699 if k_shot==5 else 0.584 # threshold for when to test full version of episode
-	mdl_file = 'ckpt/maml%d%d.mdl'%(n_way, k_shot)
-	print('mini-imagnet: %d-way %d-shot lr:%f, threshold:%f' % (n_way, k_shot, lr, threhold))
+	mdl_file = 'ckpt/miniimagenet%d%d.mdl'%(n_way, k_shot)
+	print('mini-imagnet: %d-way %d-shot meta-lr:%f' % (n_way, k_shot, lr))
 
 
 
