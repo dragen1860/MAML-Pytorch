@@ -34,19 +34,9 @@ def main():
 
 
 	device = torch.device('cuda:0')
-	net = MAML(n_way, k_shot, k_query, meta_batchsz, 1, meta_lr, train_lr, device)
+	net = MAML(n_way, k_shot, k_query, meta_batchsz, 5, meta_lr, train_lr, device)
 	print(net)
 
-	if os.path.exists(mdl_file):
-		print('load from checkpoint ...', mdl_file)
-		net.load_state_dict(torch.load(mdl_file))
-	else:
-		print('training from scratch.')
-
-	# whole parameters number
-	model_parameters = filter(lambda p: p.requires_grad, net.parameters())
-	params = sum([np.prod(p.size()) for p in model_parameters])
-	print('Total params:', params)
 
 
 	for epoch in range(1000):

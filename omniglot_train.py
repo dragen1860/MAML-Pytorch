@@ -27,7 +27,7 @@ def main():
 	train_lr = 0.4
 
 	k_query = 15
-	imgsz = 28
+	imgsz = 84
 	mdl_file = 'ckpt/omniglot%d%d.mdl'%(n_way, k_shot)
 	print('omniglot: %d-way %d-shot meta-lr:%f, train-lr:%f' % (n_way, k_shot, meta_lr, train_lr))
 
@@ -37,16 +37,6 @@ def main():
 	net = MAML(n_way, k_shot, k_query, meta_batchsz, 1, meta_lr, train_lr, device)
 	print(net)
 
-	if os.path.exists(mdl_file):
-		print('load from checkpoint ...', mdl_file)
-		net.load_state_dict(torch.load(mdl_file))
-	else:
-		print('training from scratch.')
-
-	# whole parameters number
-	model_parameters = filter(lambda p: p.requires_grad, net.parameters())
-	params = sum([np.prod(p.size()) for p in model_parameters])
-	print('Total params:', params)
 
 	# batchsz here means total episode number
 	db = OmniglotNShot('omniglot', batchsz=meta_batchsz, n_way=n_way, k_shot=k_shot, k_query=k_query, imgsz=imgsz)
