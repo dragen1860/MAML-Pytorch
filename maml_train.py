@@ -33,7 +33,7 @@ def main():
 
 
 
-	device = torch.device('cuda')
+	device = torch.device('cuda:1')
 	net = MAML(n_way, k_shot, k_query, meta_batchsz=meta_batchsz, K=5, device=device)
 	print(net)
 

@@ -10,17 +10,18 @@ import numpy as np
 class Net:
 	"""
 	This is the theta network structure.
-	Unlike traiditonal nn.Module, we need expose theta tensors and explicit forward function runing on 3nd weights,
-	which makes this module a little bit complex to write.
+	Unlike traditonal nn.Module, we need expose theta tensors and explicit forward function runing on 3nd weights,
+	which makes this module a little bit redundant to read.
 	Notice: Pytorch 0.4.0 +
-	for F.conv2d, weights = [out ch, in ch, h, w]
+	for F.conv2d, weights = [out ch, in ch, kernel h, kenel w]
 	for F.linear, weights = [out dim, in dim]
 	"""
 
 	def __init__(self, nway, device):
 		"""
 
-		:param nway:
+		:param nway: N-way
+		:param device: device environment
 		"""
 
 		ch = 32
@@ -74,6 +75,7 @@ class Net:
 		]
 
 		# this dict contains global moving_mean/moving_variance for all batch norm layers.
+		# NOTICE: it requires no gradients for batch norm moving mean and moving variance.
 		self.bns = [
 			# conv1 bn:
 			#'conv1bn_mean'  
@@ -116,8 +118,8 @@ class Net:
 		self.vars[var_idx + 1].data.zero_()         # conv bias
 		self.vars[var_idx + 2].data.fill_(1)        # bn weight
 		self.vars[var_idx + 3].data.zero_()         # bn bias
-		self.bns[bn_idx].data.zero_()               # bn moving_mean
-		self.bns[bn_idx + 1].data.zero_()           # bn moving_variance
+		self.bns[bn_idx].data.zero_()               # bn moving_mean TODO: 0 or 1
+		self.bns[bn_idx + 1].data.zero_()           # bn moving_variance TODO: 0 or 1
 		var_idx += 4
 		bn_idx += 2
 
@@ -153,7 +155,7 @@ class Net:
 
 		# fc 1
 		self.vars[var_idx].data.fill_(1)            # fc weight
-		self.vars[var_idx + 1].data.zero_()
+		self.vars[var_idx + 1].data.zero_()         # fc bias
 
 
 	def test(self):
@@ -168,6 +170,7 @@ class Net:
 		:param x:   [sz, c_, h, w]
 		:param vars: list of tensors
 		:param bns: list of tensors
+		:param training: train or test, for batch norm
 		:return:
 		"""
 		if vars is None:
@@ -250,7 +253,8 @@ class Net:
 
 	def zero_grad(self, vars=None):
 		"""
-		operate on 3nd weights and clear all grad data.
+		operate on 3nd weights or class weights
+		clear all grad data.
 		:param vars:
 		:return:
 		"""
@@ -290,6 +294,7 @@ class MAML(nn.Module):
 		:param kquery:
 		:param meta_batchsz: tasks number
 		:param K:   inner update steps
+		:param device:
 		"""
 		super(MAML, self).__init__()
 
@@ -314,6 +319,7 @@ class MAML(nn.Module):
 		:param support_y:   [b, setsz]
 		:param query_x:     [b, querysz, c_, h, w]
 		:param query_y:     [b, querysz]
+		:param training:
 		:return:
 		"""
 		batchsz, setsz, c_, h, w = support_x.size()
@@ -328,16 +334,21 @@ class MAML(nn.Module):
 		# we need to coordinate with outside IO devices. With the assistance of multi-threading, we can issue multi-commands
 		# parallelly and improve the efficency of IO usage.
 		for i in range(self.meta_batchsz):
-			# run the i-th task
+
+			# 1. run the i-th task and compute loss for k=0
 			pred = self.net.run(support_x[i])
 			loss = F.cross_entropy(pred, support_y[i])
+
+			# 2. grad on theta
 			# clear theta grad info
 			self.net.zero_grad()
-			# grad on theta
 			grad = torch.autograd.grad(loss, self.net.parameters())
+
 			# print('k0')
 			# for p in grad[:5]:
 			# 	print(p.norm().item())
+
+			# 3. theta_pi = theta - lr * grad
 			fast_weights = list(map(lambda p: p[1] + self.train_lr * p[0], zip(grad, self.net.parameters())))
 
 			# [setsz, nway]
@@ -349,12 +360,14 @@ class MAML(nn.Module):
 			corrects[0] = corrects[0] + correct
 
 			for k in range(1, self.K):
+				# 1. run the i-th task and compute loss for k=1~K-1
 				pred = self.net.run(support_x[i], fast_weights, bns=None, training=training)
 				loss = F.cross_entropy(pred, support_y[i])
 				# clear fast_weights grad info
 				self.net.zero_grad(fast_weights)
-				# grad on fast_weights
+				# 2. compute grad on theta_pi
 				grad = torch.autograd.grad(loss, fast_weights)
+				# 3. theta_pi = theta_pi - lr * grad
 				fast_weights = list(map(lambda p: p[1] + self.train_lr * p[0], zip(grad, fast_weights)))
 
 
@@ -364,7 +377,7 @@ class MAML(nn.Module):
 				correct = torch.eq(pred_q, support_y[i]).sum().item()
 				corrects[k] = corrects[k] + correct
 
-			# record last step's loss
+			# 4. record last step's loss for task i
 			losses_q.append(loss_q)
 
 		# end of all tasks
