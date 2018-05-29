@@ -61,7 +61,7 @@ class OmniglotNShot():
 		# save pointer of current read batch in total cache
 		self.indexes = {"train": 0, "test": 0}
 		self.datasets = {"train": self.x_train, "test": self.x_test}  # original data cached
-		print("train_shape", self.x_train.shape, "test_shape", self.x_test.shape)
+		print("DB: train_shape", self.x_train.shape, "test_shape", self.x_test.shape)
 
 		self.datasets_cache = {"train": self.load_data_cache(self.datasets["train"]),  # current epoch data cached
 		                       "test": self.load_data_cache(self.datasets["test"])}

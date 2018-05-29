@@ -286,7 +286,7 @@ class Net:
 class MAML(nn.Module):
 
 
-	def __init__(self, nway, kshot, kquery, meta_batchsz, K, device):
+	def __init__(self, nway, kshot, kquery, meta_batchsz, K, meta_lr, train_lr, device):
 		"""
 
 		:param nway:
@@ -298,8 +298,8 @@ class MAML(nn.Module):
 		"""
 		super(MAML, self).__init__()
 
-		self.train_lr = 1e-2
-		self.meta_lr = 1e-3
+		self.train_lr = train_lr
+		self.meta_lr = meta_lr
 		self.nway = nway
 		self.kshot = kshot
 		self.kquery = kquery

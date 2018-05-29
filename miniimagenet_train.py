@@ -18,22 +18,23 @@ def main():
 	argparser.add_argument('-n', help='n way', default=5)
 	argparser.add_argument('-k', help='k shot', default=1)
 	argparser.add_argument('-b', help='batch size', default=4)
-	argparser.add_argument('-l', help='learning rate', default=1e-3)
+	argparser.add_argument('-l', help='meta learning rate', default=1e-3)
 	args = argparser.parse_args()
 	n_way = int(args.n)
 	k_shot = int(args.k)
 	meta_batchsz = int(args.b)
-	lr = float(args.l)
+	meta_lr = float(args.l)
+	train_lr = 1e-2
 
 	k_query = 15
 	imgsz = 84
 	mdl_file = 'ckpt/miniimagenet%d%d.mdl'%(n_way, k_shot)
-	print('mini-imagnet: %d-way %d-shot meta-lr:%f' % (n_way, k_shot, lr))
+	print('mini-imagnet: %d-way %d-shot meta-lr:%f, train-lr:%f' % (n_way, k_shot, meta_lr, train_lr))
 
 
 
 	device = torch.device('cuda:0')
-	net = MAML(n_way, k_shot, k_query, meta_batchsz=meta_batchsz, K=5, device=device)
+	net = MAML(n_way, k_shot, k_query, meta_batchsz, 1, meta_lr, train_lr, device)
 	print(net)
 
 	if os.path.exists(mdl_file):

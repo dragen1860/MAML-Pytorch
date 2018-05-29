@@ -4,24 +4,6 @@ Model-Agnostic Meta-Learning (MAML): https://arxiv.org/abs/1703.03400
 > It works normally now, sorry for previous bugs.
 
 
-# Ominiglot
-
-## Howto
-just run `python main.py`, the program will download omniglot dataset automatically.
-modify the value of `meta_batchsz` to fit your GPU memory size.
-
-## Benchmark
-| Model                               	| Fine Tune 	| 5-way Acc.    	|               	| 20-way Acc   	|               	|
-|-------------------------------------	|-----------	|---------------	|---------------	|--------------	|---------------	|
-|                                     	|           	| 1-shot        	| 5-shot        	| 1-shot       	| 5-shot        	|
-| MANN                                	| N         	| 82.8%         	| 94.9%         	| -            	| -             	|
-| Matching Nets                       	| N         	| 98.1%         	| 98.9%         	| 93.8%        	| 98.5%         	|
-| Matching Nets                       	| Y         	| 97.9%         	| 98.7%         	| 93.5%        	| 98.7%         	|
-| MAML                                	| Y         	| 98.7+-0.4%    	| 99.9+-0.1%    	| 95.8+-0.3%   	| 98.9+-0.2%    	|
-| **Ours**                             	| Y         	| 98.62%     		| 99.52%        	| 96.09%   		| 98.24%    				|
-
-
-
 
 # MiniImagenet
 
