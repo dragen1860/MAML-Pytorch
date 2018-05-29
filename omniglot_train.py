@@ -47,13 +47,12 @@ def main():
 	params = sum([np.prod(p.size()) for p in model_parameters])
 	print('Total params:', params)
 
+	# batchsz here means total episode number
+	db = OmniglotNShot('omniglot', batchsz=meta_batchsz, n_way=n_way, k_shot=k_shot, k_query=k_query, imgsz=imgsz)
 
 	for step in range(10000000):
-		# batchsz here means total episode number
-		db = OmniglotNShot('omniglot', batchsz=meta_batchsz, n_way=n_way, k_shot=k_shot, k_query=k_query, imgsz=imgsz)
 
-
-		# 2. train
+		# train
 		support_x, support_y, query_x, query_y = db.get_batch('train')
 		support_x = torch.from_numpy(support_x).float().transpose(2, 4).transpose(3, 4).repeat(1, 1, 3, 1, 1).to(device)
 		query_x = torch.from_numpy(query_x).float().transpose(2, 4).transpose(3, 4).repeat(1, 1, 3, 1, 1).to(device)
