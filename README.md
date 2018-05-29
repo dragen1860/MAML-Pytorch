@@ -1,16 +1,16 @@
 #  MAML-Pytorch
 PyTorch implementation of the supervised learning experiments from the paper:
 Model-Agnostic Meta-Learning (MAML): https://arxiv.org/abs/1703.03400
-
+> It works normally now, sorry for previous bugs.
 
 
 # Ominiglot
 
 ## Howto
-change `dataset = 'omniglot' ` in `main.py` and just run `python main.py`, the program will download omniglot dataset automatically.
+just run `python main.py`, the program will download omniglot dataset automatically.
 modify the value of `meta_batchsz` to fit your GPU memory size.
 
-## benchmark
+## Benchmark
 | Model                               	| Fine Tune 	| 5-way Acc.    	|               	| 20-way Acc   	|               	|
 |-------------------------------------	|-----------	|---------------	|---------------	|--------------	|---------------	|
 |                                     	|           	| 1-shot        	| 5-shot        	| 1-shot       	| 5-shot        	|
@@ -21,27 +21,14 @@ modify the value of `meta_batchsz` to fit your GPU memory size.
 | **Ours**                             	| Y         	| 98.62%     		| 99.52%        	| 96.09%   		| 98.24%    				|
 
 
->5way 1shot episode: 11580\*512 	finetune acc:0.990234 		test acc:0.986250
-
->5way 5shot episode: 27180\*128 	finetune acc:0.995625 		test acc:0.995219
-
->20way 1shot episode: 23160\*128 	finetune acc:0.960937 		test acc:0.960898
-
->20way 5shot episode: 11580\*32 	finetune acc:0.985938 		test acc:0.982437
 
 
-## training curve
-![test acc](res/test-acc.png)
+# MiniImagenet
 
-
-
-# ~~mini-Imagenet~~ (CAN NOT WORK!)
-
-> train `mini-imagenet` is extremely slow, since the code train task one by one squentially.
 
 ## Howto
 
-download `mini-imagenet` dataset and make it looks like:
+download `mini-imagenet` dataset from [here](https://github.com/dragen1860/LearningToCompare-Pytorch/issues/4) and extract it like:
 ```shell
 mini-imagenet/
 ├── images
@@ -53,16 +40,15 @@ mini-imagenet/
 └── train.csv
 
 MAML-Pytorch/
-├── main.py
-├── meta.py
-├── Readme.md 
-├── naive.md
+├── train.py
+├── maml.py
+├── Readme.md  
     ...  
 ```
 
-change `dataset = 'mini-imagenet' ` in `main.py` and just run `python main.py`.
+just run `python miniimagenet_main.py`.
 
-## benchmark
+## Benchmark
 
 | Model                               | Fine Tune | 5-way Acc. |        | 20-way Acc |        |
 |-------------------------------------|-----------|------------|--------|------------|--------|
