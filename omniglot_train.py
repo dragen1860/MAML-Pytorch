@@ -34,7 +34,7 @@ def main():
 
 
 	device = torch.device('cuda:0')
-	net = MAML(n_way, k_shot, k_query, meta_batchsz, 1, meta_lr, train_lr, device)
+	net = MAML(n_way, k_shot, k_query, meta_batchsz, 5, meta_lr, train_lr, device)
 	print(net)
 
 
@@ -52,7 +52,7 @@ def main():
 
 		accs = net(support_x, support_y, query_x, query_y, training = True)
 
-		if step % 50 == 0:
+		if step % 20 == 0:
 			print(step, '\t', accs)
 
 

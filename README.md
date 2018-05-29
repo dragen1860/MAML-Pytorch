@@ -42,3 +42,10 @@ just run `python miniimagenet_main.py`.
 | MAML                                | Y         | 48.7%      | 63.11% | 16.49%     | 19.29% |
 | **Ours**                            | Y         | -      		| - 		| -    		 | - 	|
 
+
+
+# Ominiglot
+
+## Howto
+change `dataset = 'omniglot' ` in `main.py` and just run `python main.py`, the program will download omniglot dataset automatically.
+modify the value of `meta_batchsz` to fit your GPU memory size.
