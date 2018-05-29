@@ -21,13 +21,15 @@ mini-imagenet/
 ├── val.csv
 └── train.csv
 
-MAML-Pytorch/
-├── train.py
-├── maml.py
-├── Readme.md  
-    ...  
-```
 
+```
+modify the path
+```
+		# batchsz here means total episode number
+		mini = MiniImagenet('/hdd1/liangqu/datasets/miniimagenet/', mode='train', n_way=n_way, k_shot=k_shot, k_query=k_query,
+		                    batchsz=10000, resize=imgsz)
+```
+to your actual data path.
 just run `python miniimagenet_main.py`.
 
 ## Benchmark
