@@ -7,7 +7,7 @@ import numpy as np
 
 
 
-class Net:
+class Net(nn.Module):
 	"""
 	This is the theta network structure.
 	Unlike traditonal nn.Module, we need expose theta tensors and explicit forward function runing on 3nd weights,
@@ -17,90 +17,93 @@ class Net:
 	for F.linear, weights = [out dim, in dim]
 	"""
 
-	def __init__(self, nway, device):
+	def __init__(self, nway):
 		"""
 
 		:param nway: N-way
 		:param device: device environment
 		"""
+		super(Net, self).__init__()
 
 		ch = 32
 
 		# this dict contains all tensors needed to be optimized
-		self.vars = [
+		self.vars = nn.ParameterList([
 			#'conv1w'        
-			torch.empty(ch, 3, 3, 3, requires_grad = True, device=device),
+			nn.Parameter(torch.empty(ch, 3, 3, 3)),
 			#'conv1b'        
-			torch.empty(ch, requires_grad = True, device=device),
+			nn.Parameter(torch.empty(ch)),
 			#'conv1bn_w'     
-			torch.empty(ch, requires_grad = True, device=device),
+			nn.Parameter(torch.empty(ch)),
 			#'conv1bn_b'     
-			torch.empty(ch, requires_grad = True, device=device),
+			nn.Parameter(torch.empty(ch)),
 
 			# conv2:
 			#'conv2w'        
-			torch.empty(ch, ch, 3, 3, requires_grad = True, device=device),
+			nn.Parameter(torch.empty(ch, ch, 3, 3)),
 			#'conv2b'        
-			torch.empty(ch, requires_grad = True, device=device),
+			nn.Parameter(torch.empty(ch)),
 			#'conv2bn_w'     
-			torch.empty(ch,requires_grad = True, device=device),
+			nn.Parameter(torch.empty(ch)),
 			#'conv2bn_b'     
-			torch.empty(ch, requires_grad = True, device=device),
+			nn.Parameter(torch.empty(ch)),
 
 			# conv3:
 			#'conv3w'        
-			torch.empty(ch, ch, 3, 3, requires_grad = True, device=device),
+			nn.Parameter(torch.empty(ch, ch, 3, 3)),
 			#'conv3b'        
-			torch.empty(ch, requires_grad = True, device=device),
+			nn.Parameter(torch.empty(ch)),
 			#'conv3bn_w'     
-			torch.empty(ch, requires_grad = True, device=device),
+			nn.Parameter(torch.empty(ch)),
 			#'conv3bn_b'     
-			torch.empty(ch, requires_grad = True, device=device),
+			nn.Parameter(torch.empty(ch)),
 
 			# conv4:
 			#'conv4w'        
-			torch.empty(ch, ch, 3, 3, requires_grad = True, device=device),
+			nn.Parameter(torch.empty(ch, ch, 3, 3)),
 			#'conv4b'        
-			torch.empty(ch, requires_grad = True, device=device),
+			nn.Parameter(torch.empty(ch)),
 			#'conv4bn_w'     
-			torch.empty(ch, requires_grad = True, device=device),
+			nn.Parameter(torch.empty(ch)),
 			#'conv4bn_b'     
-			torch.empty(ch, requires_grad = True, device=device),
+			nn.Parameter(torch.empty(ch)),
 
 			# fc1:
 			#'fc1w'
-			torch.empty(nway, ch * 3 * 3, requires_grad = True, device=device),
+			nn.Parameter(torch.empty(nway, ch * 3 * 3)),
 			#'fc1b'
-			torch.empty(nway, requires_grad = True, device=device),
-		]
+			nn.Parameter(torch.empty(nway)),
+		])
 
 		# this dict contains global moving_mean/moving_variance for all batch norm layers.
 		# NOTICE: it requires no gradients for batch norm moving mean and moving variance.
-		self.bns = [
+		self.bns = nn.ParameterList([
 			# conv1 bn:
 			#'conv1bn_mean'  
-			torch.empty(ch, device=device),
+			nn.Parameter(torch.empty(ch), requires_grad=False),
 			#'conv1bn_var'   
-			torch.empty(ch, device=device),
+			nn.Parameter(torch.empty(ch), requires_grad=False),
 
 			# conv2 bn:
 			#'conv2bn_mean'  
-			torch.empty(ch, device=device),
+			nn.Parameter(torch.empty(ch), requires_grad=False),
 			#'conv2bn_var'   
-			torch.empty(ch, device=device),
+			nn.Parameter(torch.empty(ch), requires_grad=False),
 
 			# conv3 bn:
 			#'conv3bn_mean'  
-			torch.empty(ch, device=device),
+			nn.Parameter(torch.empty(ch), requires_grad=False),
 			#'conv3bn_var'   
-			torch.empty(ch, device=device),
+			nn.Parameter(torch.empty(ch), requires_grad=False),
 
 			# conv4 bn:
 			#'conv4bn_mean'  
-			torch.empty(ch, device=device),
+			nn.Parameter(torch.empty(ch), requires_grad=False),
 			#'conv4bn_var'   
-			torch.empty(ch, device=device),
-		]
+			nn.Parameter(torch.empty(ch), requires_grad=False),
+		])
+
+
 
 	def weights_init(self):
 
@@ -151,13 +154,16 @@ class Net:
 		self.vars[var_idx + 1].data.zero_()         # fc bias
 
 
+
+
+
 	def test(self):
 		x = torch.randn(4, 3, 84, 84)
-		x = self.run(x)
+		x = self(x)
 
 
 
-	def run(self, x, vars=None, bns=None, training=True):
+	def forward(self, x, vars=None, bns=None, training=True):
 		"""
 
 		:param x:   [sz, c_, h, w]
@@ -272,14 +278,15 @@ class Net:
 		else:
 			return vars
 
-
+	def __repr__(self):
+		return "MAML Basic Net(Variables:{0} Tensors:{1})".format(len(self.vars), len(self.bns))
 
 
 
 class MAML(nn.Module):
 
 
-	def __init__(self, nway, kshot, kquery, meta_batchsz, K, meta_lr, train_lr, device):
+	def __init__(self, nway, kshot, kquery, meta_batchsz, K, meta_lr, train_lr):
 		"""
 
 		:param nway:
@@ -300,7 +307,7 @@ class MAML(nn.Module):
 		self.K = K
 
 
-		self.net = Net(nway, device)
+		self.net = Net(nway)
 		self.net.weights_init()
 
 		self.meta_optim = optim.Adam(self.net.parameters(), lr= self.meta_lr)
@@ -330,7 +337,7 @@ class MAML(nn.Module):
 		for i in range(batchsz): # batchsz==self.meta_batchsz
 
 			# 1. run the i-th task and compute loss for k=0
-			pred = self.net.run(support_x[i])
+			pred = self.net(support_x[i])
 			loss = F.cross_entropy(pred, support_y[i])
 
 			# 2. grad on theta
@@ -347,7 +354,7 @@ class MAML(nn.Module):
 
 			# this is the loss and accuracy before first update
 			# [setsz, nway]
-			pred_q = self.net.run(query_x[i], self.net.parameters(), bns=None, training=training)
+			pred_q = self.net(query_x[i], self.net.parameters(), bns=None, training=training)
 			# [setsz]
 			pred_q = F.softmax(pred_q, dim=1).argmax(dim=1)
 			# scalar
@@ -356,7 +363,7 @@ class MAML(nn.Module):
 
 			# this is the loss and accuracy after the first update
 			# [setsz, nway]
-			pred_q = self.net.run(query_x[i], fast_weights, bns=None, training=training)
+			pred_q = self.net(query_x[i], fast_weights, bns=None, training=training)
 			loss_q = F.cross_entropy(pred_q, query_y[i])
 			# [setsz]
 			pred_q = F.softmax(pred_q, dim=1).argmax(dim=1)
@@ -366,7 +373,7 @@ class MAML(nn.Module):
 
 			for k in range(1, self.K):
 				# 1. run the i-th task and compute loss for k=1~K-1
-				pred = self.net.run(support_x[i], fast_weights, bns=None, training=training)
+				pred = self.net(support_x[i], fast_weights, bns=None, training=training)
 				loss = F.cross_entropy(pred, support_y[i])
 				# clear fast_weights grad info
 				self.net.zero_grad(fast_weights)
@@ -376,7 +383,7 @@ class MAML(nn.Module):
 				fast_weights = list(map(lambda p: p[1] - self.train_lr * p[0], zip(grad, fast_weights)))
 
 
-				pred_q = self.net.run(query_x[i], fast_weights, bns=None, training=training)
+				pred_q = self.net(query_x[i], fast_weights, bns=None, training=training)
 				loss_q = F.cross_entropy(pred_q, query_y[i])
 				pred_q = F.softmax(pred_q, dim=1).argmax(dim=1)
 				correct = torch.eq(pred_q, query_y[i]).sum().item() # convert to numpy

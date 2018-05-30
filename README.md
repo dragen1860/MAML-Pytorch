@@ -1,6 +1,7 @@
 #  MAML-Pytorch
 PyTorch implementation of the supervised learning experiments from the paper:
 Model-Agnostic Meta-Learning (MAML): https://arxiv.org/abs/1703.03400
+
 > Both `MiniImagenet` and `Omniglot` Datasets are supported! Have Fun~
 
 
@@ -43,13 +44,13 @@ to your actual data path.
 
 ## Benchmark
 
-| Model                               | Fine Tune | 5-way Acc. |        | 20-way Acc |        |
+| Model                               | Fine Tune | 5-way Acc. |        | 20-way Acc.|        |
 |-------------------------------------|-----------|------------|--------|------------|--------|
 |                                     |           | 1-shot     | 5-shot | 1-shot     | 5-shot |
 | Matching Nets                       | N         | 43.56%     | 55.31% | 17.31%     | 22.69% |
 | Meta-LSTM                           |           | 43.44%     | 60.60% | 16.70%     | 26.06% |
 | MAML                                | Y         | 48.7%      | 63.11% | 16.49%     | 19.29% |
-| **Ours**                            | Y         | 48.1%      | - 		| -    		 | - 	|
+| **Ours**                            | Y         | 48.1%      | 62.2%	| -    		 | - 	|
 
 
 

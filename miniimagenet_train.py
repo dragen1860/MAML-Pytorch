@@ -41,7 +41,7 @@ def main():
 
 
 	device = torch.device('cuda:0')
-	net = MAML(n_way, k_shot, k_query, meta_batchsz, K, meta_lr, train_lr, device)
+	net = MAML(n_way, k_shot, k_query, meta_batchsz, K, meta_lr, train_lr).to(device) 
 	print(net)
 
 
@@ -66,7 +66,7 @@ def main():
 				print(epoch, step, '\t', accs)
 
 
-			if step % 1000 == 0 and step != 0: # evaluation
+			if step % 500 == 0 and step != 0: # evaluation
 				# test for 600 episodes
 				mini_test = MiniImagenet('/hdd1/liangqu/datasets/miniimagenet/', mode='test', n_way=n_way, k_shot=k_shot, k_query=k_query,
 				                    batchsz=600, resize=imgsz)
@@ -85,7 +85,7 @@ def main():
 				# [600, K+1] => [K+1]
 				means = accs_all_test.mean(axis=0)
 				# compute variance for last step K
-				m, h = mean_confidence_interval(accs_all_test[:,K])
+				m, h = mean_confidence_interval(accs_all_test[:, K])
 				print('>>Test:\t', means, 'variance[K]: %.4f'%h, '<<')
 
 
