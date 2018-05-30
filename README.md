@@ -24,13 +24,14 @@ mini-imagenet/
 
 ```
 modify the path
-```
+```python
 		# batchsz here means total episode number
 		mini = MiniImagenet('/hdd1/liangqu/datasets/miniimagenet/', mode='train', n_way=n_way, k_shot=k_shot, k_query=k_query,
 		                    batchsz=10000, resize=imgsz)
 ```
 to your actual data path.
-just run `python miniimagenet_main.py`.
+just run `python miniimagenet_main.py` and screenshot as follows:
+![screenshot-miniimagetnet](res/mini-screen.png)
 
 ## Benchmark
 
@@ -47,5 +48,5 @@ just run `python miniimagenet_main.py`.
 # Ominiglot
 
 ## Howto
-change `dataset = 'omniglot' ` in `main.py` and just run `python main.py`, the program will download omniglot dataset automatically.
+run `python main.py`, the program will download omniglot dataset automatically.
 modify the value of `meta_batchsz` to fit your GPU memory size.
