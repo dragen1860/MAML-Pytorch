@@ -57,6 +57,6 @@ to your actual data path.
 # Ominiglot
 
 ## Howto
-run `python ominiglot_train.py`, the program will download `omniglot` dataset automatically.
+run `python omniglot_train.py`, the program will download `omniglot` dataset automatically.
 
 decrease the value of `meta_batchsz` to fit your GPU memory capacity.
