@@ -60,6 +60,27 @@ def main():
 				print(epoch, step, '\t', accs)
 
 
+			if step % 1000 == 0 and step != 0:# batchsz here means total episode number
+				mini_test = MiniImagenet('/hdd1/liangqu/datasets/miniimagenet/', mode='test', n_way=n_way, k_shot=k_shot, k_query=k_query,
+				                    batchsz=600, resize=imgsz)
+				# fetch meta_batchsz num of episode each time
+				db_test = DataLoader(mini_test, meta_batchsz, shuffle=True, num_workers=4, pin_memory=True)
+				accs_all_test = []
+				for batch in db_test:
+					support_x = batch[0].to(device)
+					support_y = batch[1].to(device)
+					query_x = batch[2].to(device)
+					query_y = batch[3].to(device)
+
+					accs = net(support_x, support_y, query_x, query_y, training = True)
+					accs_all_test.append(accs)
+				# [600, K+1]
+				accs_all_test = np.array(accs_all_test)
+				# [600, K+1] => [K+1]
+				accs_all_test = accs_all_test.mean(axis=0)
+				print('>>Test:\t', accs_all_test,'<<')
+
+
 
 
 

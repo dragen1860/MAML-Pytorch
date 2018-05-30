@@ -1,7 +1,7 @@
 #  MAML-Pytorch
 PyTorch implementation of the supervised learning experiments from the paper:
 Model-Agnostic Meta-Learning (MAML): https://arxiv.org/abs/1703.03400
-> It works normally now, sorry for previous bugs.
+> Both `MiniImagenet` and `Omniglot` Datasets are supported! Have Fun~
 
 
 
@@ -10,7 +10,8 @@ Model-Agnostic Meta-Learning (MAML): https://arxiv.org/abs/1703.03400
 
 ## Howto
 
-download `MiniImagenet` dataset from [here](https://github.com/dragen1860/LearningToCompare-Pytorch/issues/4), `splitting: train/val/test.csv` from [here](https://github.com/twitter/meta-learning-lstm/tree/master/data/miniImagenet) and extract it like:
+1. download `MiniImagenet` dataset from [here](https://github.com/dragen1860/LearningToCompare-Pytorch/issues/4), `splitting: train/val/test.csv` from [here](https://github.com/twitter/meta-learning-lstm/tree/master/data/miniImagenet).
+2. extract it like:
 ```shell
 miniimagenet/
 ├── images
@@ -23,14 +24,15 @@ miniimagenet/
 
 
 ```
-modify the `path` in `miniimagenet_train.py`:
+3. modify the `path` in `miniimagenet_train.py`:
 ```python
 		# batchsz here means total episode number
 		mini = MiniImagenet('/hdd1/liangqu/datasets/miniimagenet/', mode='train', n_way=n_way, k_shot=k_shot, k_query=k_query,
 		                    batchsz=10000, resize=imgsz)
 ```
 to your actual data path.
-just run `python miniimagenet_main.py` and running screenshot is as follows:
+
+4. just run `python miniimagenet_main.py` and running screenshot is as follows:
 ![screenshot-miniimagetnet](res/mini-screen.png)
 
 ## Benchmark
@@ -41,7 +43,7 @@ just run `python miniimagenet_main.py` and running screenshot is as follows:
 | Matching Nets                       | N         | 43.56%     | 55.31% | 17.31%     | 22.69% |
 | Meta-LSTM                           |           | 43.44%     | 60.60% | 16.70%     | 26.06% |
 | MAML                                | Y         | 48.7%      | 63.11% | 16.49%     | 19.29% |
-| **Ours**                            | Y         | -      		| - 		| -    		 | - 	|
+| **Ours**                            | Y         | 48.1%      | - 		| -    		 | - 	|
 
 
 
@@ -49,4 +51,5 @@ just run `python miniimagenet_main.py` and running screenshot is as follows:
 
 ## Howto
 run `python ominiglot_train.py`, the program will download `omniglot` dataset automatically.
-decrease the value of `meta_batchsz` to fit your GPU memory size.
+
+decrease the value of `meta_batchsz` to fit your GPU memory capacity.
