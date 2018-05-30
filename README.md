@@ -4,6 +4,9 @@ Model-Agnostic Meta-Learning (MAML): https://arxiv.org/abs/1703.03400
 > Both `MiniImagenet` and `Omniglot` Datasets are supported! Have Fun~
 
 
+# Platform
+- python: 3.x
+- Pytorch: 0.4+
 
 # MiniImagenet
 
@@ -29,6 +32,9 @@ miniimagenet/
 		# batchsz here means total episode number
 		mini = MiniImagenet('/hdd1/liangqu/datasets/miniimagenet/', mode='train', n_way=n_way, k_shot=k_shot, k_query=k_query,
 		                    batchsz=10000, resize=imgsz)
+		...
+		mini_test = MiniImagenet('/hdd1/liangqu/datasets/miniimagenet/', mode='test', n_way=n_way, k_shot=k_shot, k_query=k_query,
+				                    batchsz=600, resize=imgsz)
 ```
 to your actual data path.
 
