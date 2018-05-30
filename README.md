@@ -4,6 +4,8 @@ Model-Agnostic Meta-Learning (MAML): https://arxiv.org/abs/1703.03400
 
 > Both `MiniImagenet` and `Omniglot` Datasets are supported! Have Fun~
 
+For Tensorflow Implementation, please visit [HERE](https://github.com/dragen1860/MAML-TensorFlow).
+For First-Order Implementation, Reptile namely, please visit [HERE](https://github.com/dragen1860/Reptile-Pytorch).
 
 # Platform
 - python: 3.x
