@@ -395,14 +395,15 @@ class MAML(nn.Module):
 		# end of all tasks
 		# sum over all losses across all tasks
 		loss_q = torch.stack(losses_q).sum(0)
-
-		# optimize theta parameters
-		self.meta_optim.zero_grad()
-		loss_q.backward()
-		# print('meta update')
-		# for p in self.net.parameters()[:5]:
-		# 	print(torch.norm(p).item())
-		self.meta_optim.step()
+		
+		if training: # update theta when training
+			# optimize theta parameters
+			self.meta_optim.zero_grad()
+			loss_q.backward()
+			# print('meta update')
+			# for p in self.net.parameters()[:5]:
+			# 	print(torch.norm(p).item())
+			self.meta_optim.step()
 
 		accs = np.array(corrects) / (querysz * batchsz)
 
