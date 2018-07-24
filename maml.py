@@ -396,7 +396,7 @@ class MAML(nn.Module):
 		# sum over all losses across all tasks
 		loss_q = torch.stack(losses_q).sum(0)
 		
-		if training: # update theta when training
+		if True: # TODO: this is a potential problems.
 			# optimize theta parameters
 			self.meta_optim.zero_grad()
 			loss_q.backward()
