@@ -154,6 +154,7 @@ class MiniImagenet(Dataset):
 		# query_y: [querysz]
 		# unique: [n-way], sorted
 		unique = np.unique(support_y)
+		random.shuffle(unique)
 		# relative means the label ranges from 0 to n-way
 		support_y_relative = np.zeros(self.setsz)
 		query_y_relative = np.zeros(self.querysz)
