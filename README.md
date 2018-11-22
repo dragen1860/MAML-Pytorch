@@ -41,7 +41,7 @@ miniimagenet/
 ```
 to your actual data path.
 
-4. just run `python miniimagenet_main.py` and running screenshot is as follows:
+4. just run `python miniimagenet_train.py` and running screenshot is as follows:
 ![screenshot-miniimagetnet](res/mini-screen.png)
 
 ## Benchmark
