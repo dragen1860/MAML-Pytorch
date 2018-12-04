@@ -3,6 +3,7 @@ PyTorch implementation of the supervised learning experiments from the paper:
 [Model-Agnostic Meta-Learning (MAML)](https://arxiv.org/abs/1703.03400).
 
 > Version 1.0: Both `MiniImagenet` and `Omniglot` Datasets are supported! Have Fun~
+
 > Version 2.0: Re-write meta learner and basic learner. Solved some serious bugs in version 1.0.
 
 For Tensorflow Implementation, please visit [HERE](https://github.com/dragen1860/MAML-TensorFlow).
