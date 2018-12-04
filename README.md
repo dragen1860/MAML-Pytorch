@@ -1,11 +1,13 @@
 #  MAML-Pytorch
 PyTorch implementation of the supervised learning experiments from the paper:
-Model-Agnostic Meta-Learning (MAML): https://arxiv.org/abs/1703.03400
+[Model-Agnostic Meta-Learning (MAML)](https://arxiv.org/abs/1703.03400).
 
-> Both `MiniImagenet` and `Omniglot` Datasets are supported! Have Fun~
+> Version 1.0: Both `MiniImagenet` and `Omniglot` Datasets are supported! Have Fun~
+> Version 2.0: Re-write meta learner and basic learner. Solved some serious bugs in version 1.0.
 
 For Tensorflow Implementation, please visit [HERE](https://github.com/dragen1860/MAML-TensorFlow).
-For First-Order Implementation, Reptile namely, please visit [HERE](https://github.com/dragen1860/Reptile-Pytorch).
+
+For First-Order Approximation Implementation, Reptile namely, please visit [HERE](https://github.com/dragen1860/Reptile-Pytorch).
 
 # Platform
 - python: 3.x
@@ -32,16 +34,17 @@ miniimagenet/
 ```
 3. modify the `path` in `miniimagenet_train.py`:
 ```python
-		# batchsz here means total episode number
-		mini = MiniImagenet('/hdd1/liangqu/datasets/miniimagenet/', mode='train', n_way=n_way, k_shot=k_shot, k_query=k_query,
-		                    batchsz=10000, resize=imgsz)
+        mini = MiniImagenet('miniimagenet/', mode='train', n_way=args.n_way, k_shot=args.k_spt,
+                    k_query=args.k_qry,
+                    batchsz=10000, resize=args.imgsz)
 		...
-		mini_test = MiniImagenet('/hdd1/liangqu/datasets/miniimagenet/', mode='test', n_way=n_way, k_shot=k_shot, k_query=k_query,
-				                    batchsz=600, resize=imgsz)
+        mini_test = MiniImagenet('miniimagenet/', mode='test', n_way=args.n_way, k_shot=args.k_spt,
+                    k_query=args.k_qry,
+                    batchsz=100, resize=args.imgsz)
 ```
 to your actual data path.
 
-4. just run `python miniimagenet_train.py` and running screenshot is as follows:
+4. just run `python miniimagenet_train.py` and the running screenshot is as follows:
 ![screenshot-miniimagetnet](res/mini-screen.png)
 
 ## Benchmark
@@ -61,7 +64,7 @@ to your actual data path.
 ## Howto
 run `python omniglot_train.py`, the program will download `omniglot` dataset automatically.
 
-decrease the value of `meta_batchsz` to fit your GPU memory capacity.
+decrease the value of `args.task_num` to fit your GPU memory capacity.
 
 
 # Refer to this Rep.
