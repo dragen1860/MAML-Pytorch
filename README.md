@@ -19,7 +19,7 @@ For First-Order Approximation Implementation, Reptile namely, please visit [HERE
 
 ## Howto
 
-1. download `MiniImagenet` dataset from [here](https://github.com/dragen1860/LearningToCompare-Pytorch/issues/4), `splitting: train/val/test.csv` from [here](https://github.com/twitter/meta-learning-lstm/tree/master/data/miniImagenet).
+1. download `MiniImagenet` dataset from [here](https://github.com/dragen1860/LearningToCompare-Pytorch/issues/4), splitting: `train/val/test.csv` from [here](https://github.com/twitter/meta-learning-lstm/tree/master/data/miniImagenet).
 2. extract it like:
 ```shell
 miniimagenet/
