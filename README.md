@@ -19,6 +19,8 @@ For First-Order Approximation Implementation, Reptile namely, please visit [HERE
 
 ## Howto
 
+For 5-way 1-shot exp., it allocates nearly 6GB GPU memory.
+
 1. download `MiniImagenet` dataset from [here](https://github.com/dragen1860/LearningToCompare-Pytorch/issues/4), splitting: `train/val/test.csv` from [here](https://github.com/twitter/meta-learning-lstm/tree/master/data/miniImagenet).
 2. extract it like:
 ```shell
@@ -66,6 +68,8 @@ to your actual data path.
 run `python omniglot_train.py`, the program will download `omniglot` dataset automatically.
 
 decrease the value of `args.task_num` to fit your GPU memory capacity.
+
+For 5-way 1-shot exp., it allocates nearly 3GB GPU memory.
 
 
 # Refer to this Rep.
