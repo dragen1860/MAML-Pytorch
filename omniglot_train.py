@@ -45,7 +45,7 @@ def main(args):
                        k_query=args.k_qry,
                        imgsz=args.imgsz)
 
-    for step in range(40000):
+    for step in range(args.epoch):
 
         x_spt, y_spt, x_qry, y_qry = db_train.next()
         x_spt, y_spt, x_qry, y_qry = torch.from_numpy(x_spt).to(device), torch.from_numpy(y_spt).to(device), \
@@ -54,10 +54,10 @@ def main(args):
         # set traning=True to update running_mean, running_variance, bn_weights, bn_bias
         accs = maml(x_spt, y_spt, x_qry, y_qry)
 
-        if step % 30 == 0:
+        if step % 50 == 0:
             print('step:', step, '\ttraining acc:', accs)
 
-        if step % 100 == 0:
+        if step % 500 == 0:
             accs = []
             for _ in range(1000//args.task_num):
                 # test
@@ -78,6 +78,7 @@ def main(args):
 if __name__ == '__main__':
 
     argparser = argparse.ArgumentParser()
+    argparser.add_argument('--epoch', type=int, help='epoch number', default=40000)
     argparser.add_argument('--n_way', type=int, help='n way', default=5)
     argparser.add_argument('--k_spt', type=int, help='k shot for support set', default=1)
     argparser.add_argument('--k_qry', type=int, help='k shot for query set', default=15)
