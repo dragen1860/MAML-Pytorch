@@ -62,3 +62,17 @@ to your actual data path.
 run `python omniglot_train.py`, the program will download `omniglot` dataset automatically.
 
 decrease the value of `meta_batchsz` to fit your GPU memory capacity.
+
+
+# Refer to this Rep.
+```
+@misc{MAML_Pytorch,
+  author = {Liangqu Long},
+  title = {MAML-Pytorch Implementation},
+  year = {2018},
+  publisher = {GitHub},
+  journal = {GitHub repository},
+  howpublished = {\url{https://github.com/dragen1860/MAML-Pytorch}},
+  commit = {master}
+}
+```

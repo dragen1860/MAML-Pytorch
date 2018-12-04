@@ -1,69 +1,94 @@
-import torch, os
-import numpy as np
-from torch import optim
-from torch import  nn
-from omniglotNShot import OmniglotNShot
-import scipy.stats
-from torch.utils.data import DataLoader
-from torch.optim import lr_scheduler
-import random, sys, pickle
-import argparse
+import  torch, os
+import  numpy as np
+from    omniglotNShot import OmniglotNShot
+import  argparse
 
-from maml import MAML
+from    meta import Meta
 
+def main(args):
 
+    torch.manual_seed(222)
+    torch.cuda.manual_seed_all(222)
+    np.random.seed(222)
 
-def main():
-	argparser = argparse.ArgumentParser()
-	argparser.add_argument('-n', help='n way', default=5)
-	argparser.add_argument('-k', help='k shot', default=1)
-	argparser.add_argument('-b', help='batch size', default=32)
-	argparser.add_argument('-l', help='meta learning rate', default=1e-3)
-	args = argparser.parse_args()
-	n_way = int(args.n)
-	k_shot = int(args.k)
-	meta_batchsz = int(args.b)
-	meta_lr = float(args.l)
-	train_lr = 0.4
+    print(args)
 
-	k_query = 15
-	imgsz = 84
-	mdl_file = 'ckpt/omniglot%d%d.mdl'%(n_way, k_shot)
-	print('omniglot: %d-way %d-shot meta-lr:%f, train-lr:%f' % (n_way, k_shot, meta_lr, train_lr))
+    config = [
+        ('conv2d', [64, 1, 3, 3, 2, 0]),
+        ('relu', [True]),
+        ('bn', [64]),
+        ('conv2d', [64, 64, 3, 3, 2, 0]),
+        ('relu', [True]),
+        ('bn', [64]),
+        ('conv2d', [64, 64, 3, 3, 2, 0]),
+        ('relu', [True]),
+        ('bn', [64]),
+        ('conv2d', [64, 64, 2, 2, 1, 0]),
+        ('relu', [True]),
+        ('bn', [64]),
+        ('flatten', []),
+        ('linear', [args.n_way, 64])
+    ]
 
+    device = torch.device('cuda')
+    maml = Meta(args, config).to(device)
 
+    tmp = filter(lambda x: x.requires_grad, maml.parameters())
+    num = sum(map(lambda x: np.prod(x.shape), tmp))
+    print(maml)
+    print('Total trainable tensors:', num)
 
-	device = torch.device('cuda:0')
-	net = MAML(n_way, k_shot, k_query, meta_batchsz, 5, meta_lr, train_lr, device)
-	print(net)
+    db_train = OmniglotNShot('omniglot',
+                       batchsz=args.task_num,
+                       n_way=args.n_way,
+                       k_shot=args.k_spt,
+                       k_query=args.k_qry,
+                       imgsz=args.imgsz)
 
+    for step in range(40000):
 
-	# batchsz here means total episode number
-	db = OmniglotNShot('omniglot', batchsz=meta_batchsz, n_way=n_way, k_shot=k_shot, k_query=k_query, imgsz=imgsz)
+        x_spt, y_spt, x_qry, y_qry = db_train.next()
+        x_spt, y_spt, x_qry, y_qry = torch.from_numpy(x_spt).to(device), torch.from_numpy(y_spt).to(device), \
+                                     torch.from_numpy(x_qry).to(device), torch.from_numpy(y_qry).to(device)
 
-	for step in range(10000000):
+        # set traning=True to update running_mean, running_variance, bn_weights, bn_bias
+        accs = maml(x_spt, y_spt, x_qry, y_qry)
 
-		# train
-		support_x, support_y, query_x, query_y = db.get_batch('train')
-		support_x = torch.from_numpy(support_x).float().transpose(2, 4).transpose(3, 4).repeat(1, 1, 3, 1, 1).to(device)
-		query_x = torch.from_numpy(query_x).float().transpose(2, 4).transpose(3, 4).repeat(1, 1, 3, 1, 1).to(device)
-		support_y = torch.from_numpy(support_y).long().to(device)
-		query_y = torch.from_numpy(query_y).long().to(device)
+        if step % 30 == 0:
+            print('step:', step, '\ttraining acc:', accs)
 
-		accs = net(support_x, support_y, query_x, query_y, training = True)
+        if step % 100 == 0:
+            accs = []
+            for _ in range(1000//args.task_num):
+                # test
+                x_spt, y_spt, x_qry, y_qry = db_train.next('test')
+                x_spt, y_spt, x_qry, y_qry = torch.from_numpy(x_spt).to(device), torch.from_numpy(y_spt).to(device), \
+                                             torch.from_numpy(x_qry).to(device), torch.from_numpy(y_qry).to(device)
 
-		if step % 20 == 0:
-			print(step, '\t', accs)
+                # split to single task each time
+                for x_spt_one, y_spt_one, x_qry_one, y_qry_one in zip(x_spt, y_spt, x_qry, y_qry):
+                    test_acc = maml.finetunning(x_spt_one, y_spt_one, x_qry_one, y_qry_one)
+                    accs.append( test_acc )
 
-
-
-		if step % 1000 == 0:
-			# test
-			pass
-
-
-
+            # [b, update_step+1]
+            accs = np.array(accs).mean(axis=0).astype(np.float16)
+            print('Test acc:', accs)
 
 
 if __name__ == '__main__':
-	main()
+
+    argparser = argparse.ArgumentParser()
+    argparser.add_argument('--n_way', type=int, help='n way', default=5)
+    argparser.add_argument('--k_spt', type=int, help='k shot for support set', default=1)
+    argparser.add_argument('--k_qry', type=int, help='k shot for query set', default=15)
+    argparser.add_argument('--imgsz', type=int, help='imgsz', default=28)
+    argparser.add_argument('--imgc', type=int, help='imgc', default=1)
+    argparser.add_argument('--task_num', type=int, help='meta batch size, namely task num', default=32)
+    argparser.add_argument('--meta_lr', type=float, help='meta-level outer learning rate', default=1e-3)
+    argparser.add_argument('--update_lr', type=float, help='task-level inner update learning rate', default=0.4)
+    argparser.add_argument('--update_step', type=int, help='task-level inner update steps', default=5)
+    argparser.add_argument('--update_step_test', type=int, help='update steps for finetunning', default=10)
+
+    args = argparser.parse_args()
+
+    main(args)
