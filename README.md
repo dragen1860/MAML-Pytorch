@@ -6,9 +6,11 @@ PyTorch implementation of the supervised learning experiments from the paper:
 
 > Version 2.0: Re-write meta learner and basic learner. Solved some serious bugs in version 1.0.
 
-For Tensorflow Implementation, please visit [HERE](https://github.com/dragen1860/MAML-TensorFlow).
+For Tensorflow Implementation, please visit official [HERE](https://github.com/cbfinn/maml) and simplier version [HERE](https://github.com/dragen1860/MAML-TensorFlow).
 
 For First-Order Approximation Implementation, Reptile namely, please visit [HERE](https://github.com/dragen1860/Reptile-Pytorch).
+
+![heart](res/heart.gif)
 
 # Platform
 - python: 3.x
