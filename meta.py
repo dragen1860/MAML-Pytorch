@@ -74,7 +74,7 @@ class Meta(nn.Module):
         task_num, setsz, c_, h, w = x_spt.size()
         querysz = x_qry.size(1)
 
-        losses_q = [0 for _ in range(self.update_step + 1)]  # losses_q[i], i is tasks idx
+        losses_q = [0 for _ in range(self.update_step + 1)]  # losses_q[i] is the loss on step i
         corrects = [0 for _ in range(self.update_step + 1)]
 
 
@@ -127,8 +127,7 @@ class Meta(nn.Module):
                     correct = torch.eq(pred_q, y_qry[i]).sum().item()  # convert to numpy
                     corrects[k + 1] = corrects[k + 1] + correct
 
-            # 4. record last step's loss for task i
-            losses_q.append(loss_q)
+
 
         # end of all tasks
         # sum over all losses on query set across all tasks

@@ -54,11 +54,15 @@ def main():
     print(maml)
     print('Total trainable tensors:', num)
 
+    # batchsz here means total episode number
+    mini = MiniImagenet('/home/i/tmp/MAML-Pytorch/miniimagenet/', mode='train', n_way=args.n_way, k_shot=args.k_spt,
+                        k_query=args.k_qry,
+                        batchsz=10000, resize=args.imgsz)
+    mini_test = MiniImagenet('/home/i/tmp/MAML-Pytorch/miniimagenet/', mode='test', n_way=args.n_way, k_shot=args.k_spt,
+                             k_query=args.k_qry,
+                             batchsz=100, resize=args.imgsz)
+
     for epoch in range(args.epoch//10000):
-        # batchsz here means total episode number
-        mini = MiniImagenet('miniimagenet/', mode='train', n_way=args.n_way, k_shot=args.k_spt,
-                            k_query=args.k_qry,
-                            batchsz=10000, resize=args.imgsz)
         # fetch meta_batchsz num of episode each time
         db = DataLoader(mini, args.task_num, shuffle=True, num_workers=1, pin_memory=True)
 
@@ -72,9 +76,6 @@ def main():
                 print('step:', step, '\ttraining acc:', accs)
 
             if step % 500 == 0:  # evaluation
-                mini_test = MiniImagenet('miniimagenet/', mode='test', n_way=args.n_way, k_shot=args.k_spt,
-                                    k_query=args.k_qry,
-                                    batchsz=100, resize=args.imgsz)
                 db_test = DataLoader(mini_test, 1, shuffle=True, num_workers=1, pin_memory=True)
                 accs_all_test = []
 
