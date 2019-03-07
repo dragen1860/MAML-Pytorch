@@ -52,6 +52,9 @@ to your actual data path.
 4. just run `python miniimagenet_train.py` and the running screenshot is as follows:
 ![screenshot-miniimagetnet](res/mini-screen.png)
 
+If your reproducation perf. is not so good, maybe you can enlarge your `training epoch` to get longer training. And MAML is notorious for its hard training. Therefore, this implementation only provide you a basic start point to begin your research.
+and the performance below is true and achieved on my machine.
+
 ## Benchmark
 
 | Model                               | Fine Tune | 5-way Acc. |        | 20-way Acc.|        |
